@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
      android:layout_width="match_parent"
     android:layout_height="260dp"
     android:background="#ffffff"
     android:padding="10dp">
+
     <ImageView
         android:id="@+id/image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"
+        android:background="#cccccc"
         />
-</LinearLayout>
+    <TextView
+        android:id="@+id/dec_text"
+        android:layout_gravity="bottom"
+        android:background="#000"
+        android:textSize="20dp"
+        android:alpha="0.3"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
+</FrameLayout>

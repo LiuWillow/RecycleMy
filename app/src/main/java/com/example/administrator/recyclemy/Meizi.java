@@ -6,7 +6,11 @@ package com.example.administrator.recyclemy;
 
 public class Meizi {
     private String url;
+    private String desc;
     public String getUrl(){
         return url;
+    }
+    public String getDesc(){
+        return desc;
     }
 }

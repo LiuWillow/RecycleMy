@@ -1,5 +1,6 @@
 package com.example.administrator.recyclemy;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +10,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -27,7 +30,6 @@ import java.util.zip.Inflater;
 public class MainActivity extends AppCompatActivity {
     private static RecyclerView recyclerView;
     MyAdapter meiziAdapter;
-    List<Meizi> meizis;
     private LinearLayoutManager mLayoutManager;
     private int lastVisibleItem ;
     private int page=1;
@@ -41,10 +43,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.mytoolbar);
         setSupportActionBar(toolbar);
+        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
         initView();
-
         setListener();
         new GetData().execute("http://gank.io/api/data/福利/10/1");
+
     }
 
     public void initView(){
@@ -83,7 +86,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
+    Toolbar.OnMenuItemClickListener onMenuItemClickListener=new Toolbar.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            switch (item.getItemId()){
+                case R.id.menu_about:
+                    Intent intent=new Intent(MainActivity.this,AboutActivity.class);
+                    startActivity(intent);
+                    break;
+                case R.id.menu_open:
+                    //TODO 打开导航栏
+                    break;
+            }
+            return true;
+        }
+    };
     private class GetData extends AsyncTask<String, Integer, String>{
         @Override
         protected void onPreExecute() {
@@ -115,12 +132,14 @@ public class MainActivity extends AppCompatActivity {
                 }
                     List<Meizi> more=gson.fromJson(jsonData,new TypeToken<List<Meizi>>(){}.getType());
                     meiziAdapter.setMeizis(more);
-
-                    meiziAdapter.notifyDataSetChanged();
             }
             //加载视图消失
             swipeRefreshLayout.setRefreshing(false);
         }
     }
-
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
 }
