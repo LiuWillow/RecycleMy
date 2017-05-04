@@ -20,7 +20,7 @@ import java.util.List;
  */
 
 public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private List<Meizi> meizis;
+    private List<Meizi> meizis=new ArrayList<>();
     private Context mContext;
     public MyAdapter(Context context){
         mContext=context;
@@ -28,13 +28,8 @@ public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     public void setMeizis(List<Meizi> list){
-        if(meizis==null){
-            meizis=list;
-        }
-        else {
             meizis.addAll(list);
             notifyDataSetChanged();
-        }
     }
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

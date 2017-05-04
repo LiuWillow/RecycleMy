@@ -12,6 +12,7 @@
         android:scaleType="centerCrop"
         android:adjustViewBounds="true"
         android:background="#cccccc"
+
         />
     <TextView
         android:id="@+id/dec_text"

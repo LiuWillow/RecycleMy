@@ -1,7 +1,14 @@
 package com.example.administrator.recyclemy;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.google.gson.Gson;
@@ -28,64 +36,47 @@ import java.util.List;
 import java.util.zip.Inflater;
 
 public class MainActivity extends AppCompatActivity {
-    private static RecyclerView recyclerView;
-    MyAdapter meiziAdapter;
-    private LinearLayoutManager mLayoutManager;
-    private int lastVisibleItem ;
-    private int page=1;
-    private SwipeRefreshLayout swipeRefreshLayout;
+
+    private Toolbar toolbar;
+
+    private NavigationView navigationView;
+    private DrawerLayout drawerLayout;
+    private MenuItem currentItem;
+    private Fragment fragment;
+    private FrameLayout container;
 
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.mytoolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
         initView();
         setListener();
-        new GetData().execute("http://gank.io/api/data/福利/10/1");
 
     }
 
     public void initView(){
-        recyclerView=(RecyclerView)findViewById(R.id.recycle);
-        mLayoutManager=new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(mLayoutManager);
-        swipeRefreshLayout=(SwipeRefreshLayout)findViewById(R.id.line_swipe_refresh);
+        navigationView=(NavigationView)findViewById(R.id.nav_view);
+        drawerLayout=(DrawerLayout)findViewById(R.id.drawer);
+        toolbar= (Toolbar) findViewById(R.id.mytoolbar);
+        setSupportActionBar(toolbar);
+        container=(FrameLayout)findViewById(R.id.fragment_container);
     }
     public void setListener(){
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public void onRefresh() {
-                page=1;
-                new GetData().execute("http://gank.io/api/data/福利/10/1");
-            }
-        });
-
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                //                0：当前屏幕停止滚动；1时：屏幕在滚动 且 用户仍在触碰或手指还在屏幕上；2时：随用户的操作，屏幕上产生的惯性滑动；
-                //               滑动状态停止并且剩余两个item时自动加载
-                if (newState == RecyclerView.SCROLL_STATE_IDLE
-                        && lastVisibleItem +2>=mLayoutManager.getItemCount()) {
-                    new GetData().execute("http://gank.io/api/data/福利/10/"+(++page));
-                }
-            }
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                //                获取加载的最后一个可见视图在适配器的位置。
-                lastVisibleItem = mLayoutManager.findLastVisibleItemPosition();
-
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MeiziFragment())
+                        .commit();
+                drawerLayout.closeDrawer(GravityCompat.END);
+                return true;
             }
         });
     }
+
     Toolbar.OnMenuItemClickListener onMenuItemClickListener=new Toolbar.OnMenuItemClickListener() {
         @Override
         public boolean onMenuItemClick(MenuItem item) {
@@ -95,48 +86,13 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                     break;
                 case R.id.menu_open:
-                    //TODO 打开导航栏
+                    drawerLayout.openDrawer(GravityCompat.END);
                     break;
             }
             return true;
         }
     };
-    private class GetData extends AsyncTask<String, Integer, String>{
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            //设置加载视图出现
-            swipeRefreshLayout.setRefreshing(true);
-        }
-        @Override
-        protected String doInBackground(String... params) {
-            return MyOkhttp.get(params[0]);
 
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            if(meiziAdapter==null){
-                meiziAdapter=new MyAdapter(MainActivity.this);
-                recyclerView.setAdapter(meiziAdapter);
-            }
-            if(!TextUtils.isEmpty(result)){
-                JSONObject jsonObject;
-                Gson gson=new Gson();
-                String jsonData=null;
-                try{
-                    jsonObject=new JSONObject(result);
-                    jsonData=jsonObject.getString("results");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                    List<Meizi> more=gson.fromJson(jsonData,new TypeToken<List<Meizi>>(){}.getType());
-                    meiziAdapter.setMeizis(more);
-            }
-            //加载视图消失
-            swipeRefreshLayout.setRefreshing(false);
-        }
-    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
