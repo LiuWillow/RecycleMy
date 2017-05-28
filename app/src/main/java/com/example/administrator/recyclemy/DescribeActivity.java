@@ -10,11 +10,13 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -64,6 +66,7 @@ public class DescribeActivity extends AppCompatActivity {
                         insert(DescribeActivity.this,pic);
                     }
                 }).start();
+                Toast.makeText(DescribeActivity.this, "保存成功", Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
